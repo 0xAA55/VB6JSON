@@ -317,19 +317,31 @@ Else
 End If
 End Sub
 
+Private Function NewParserContext(JSONString As String) As ParserContext
+With NewParserContext
+.JSONString = JSONString
+.I = 1
+.Length = Len(JSONString)
+.LineNo = 1
+.Column = 1
+End With
+End Function
+
 Function ParseJSONString(JSONString As String) As Variant
 Dim Ctx As ParserContext
-
-Ctx.JSONString = JSONString
-Ctx.I = 1
-Ctx.Length = Len(JSONString)
-Ctx.LineNo = 1
-Ctx.Column = 1
-
+Ctx = NewParserContext(JSONString)
 ParseSubString Ctx, ParseJSONString
 SkipSpaces Ctx
 If IsEndOfString(Ctx) = False Then Err.Raise JSONErrCode, "JSON Parser", "Extra data at " & GetPositionString(Ctx)
 End Function
+
+Sub ParseJSONString2(JSONString As String, ReturnParsed As Variant)
+Dim Ctx As ParserContext
+Ctx = NewParserContext(JSONString)
+ParseSubString Ctx, ReturnParsed
+SkipSpaces Ctx
+If IsEndOfString(Ctx) = False Then Err.Raise JSONErrCode, "JSON Parser", "Extra data at " & GetPositionString(Ctx)
+End Sub
 
 Function JSONToString(JSONData As Variant, Optional ByVal Indent As Long = 0, Optional ByVal IndentChar = " ", Optional ByVal CurIndentLevel As Long = 0) As String
 If IsArray(JSONData) Then
