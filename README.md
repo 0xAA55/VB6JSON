@@ -11,6 +11,7 @@ Or optionally there's another sub `ParseJSONString2()` uses a `ByRef` param to r
 
 The returned `Variant` represents the JSON data. During parsing, the library has the following behavior:
  * Numbers turns into `Long` or `Currency` depends on it's range (i.e. If it can't fit into a `Long` then it's a `Currency`).
+   - Floating point numbers or numbers with scientific notation will be a `Double`.
  * Strings turns into VB6 Strings.
  * Arrays turns into VB6 Variant Arrays.
  * Objects turns into `Scripting.Dictionary`.
