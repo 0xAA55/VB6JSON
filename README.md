@@ -20,7 +20,7 @@ The function `JSONToString()` do the reverse work: turn the `Variant` into a JSO
 
 ### Note
 
-Because `Scripting. Dictionary` is a VB object but the others are not, and in VB6, assignments on objects need a `Set` syntax. Still, assignments on non-object variables need not use `Set` syntax, it's recommended not to design functions that return the data from `ParseJSONString()` or `ParseJSONString2()`, but design functions or subs that return data via params.
+Because `Scripting.Dictionary` is a VB object but the others are not, and in VB6, assignments on objects need a `Set` syntax. Still, assignments on non-object variables need not use `Set` syntax, it's recommended not to design functions that return the data from `ParseJSONString()` or `ParseJSONString2()`, but design functions or subs that return data via params.
 
 Use `IsObject()` to check if the `Variant` is an object, use `IsArray()` to check if if the `Variant` is an array.
 Use `VarType()` to get the type of `Variant`, if the type is `vbString`, then the `Variant` is a string.
