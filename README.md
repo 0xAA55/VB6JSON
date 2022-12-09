@@ -26,6 +26,56 @@ Use `IsObject()` to check if the `Variant` is an object, use `IsArray()` to chec
 Use `VarType()` to get the type of `Variant`, if the type is `vbString`, then the `Variant` is a string.
 If it's not an object, nor an array, also not a string, then use `IsNumeric()` to check if it's a number.
 
+## Examples
+
+Please see the following examples.
+
+### Example 1
+
+Read a list.
+
+```
+Sub Example1()
+Dim JsonObj As Variant
+ParseJSONString2 " [ 114, 514, ""1919"", 8.10e2 ] ", JsonObj
+
+Debug.Print JsonObj(0); JsonObj(1); JsonObj(2); JsonObj(3)
+End Sub
+```
+
+### Example 2
+
+Read an object
+
+```
+Sub Example2()
+Dim JsonObj As Variant
+ParseJSONString2 "{""Mike"": 123, ""Mary"": 456, ""Sam"": 789}", JsonObj
+
+Debug.Print "Sam: "; JsonObj("Sam")
+Debug.Print "Mike: "; JsonObj("Mike")
+Debug.Print "Mary: "; JsonObj("Mary")
+End Sub
+```
+
+### Example 3
+
+The typical practice of processing JSON data returned from REST API.
+
+```
+Sub Example3()
+Dim JsonObj As Variant
+ParseJSONString2 "{""success"": true, ""data"": {""text"": ""Hello Json!"", ""title"": ""VB6 Json""}}", JsonObj
+'ParseJSONString2 "{""success"": false, ""wording"": ""API failed.""}", JsonObj
+
+If JsonObj("success") = False Then
+    MsgBox JsonObj("wording"), vbExclamation, "API 返回失败。"
+Else
+    MsgBox JsonObj("data")("text"), vbInformation, JsonObj("data")("title")
+End If
+End Sub
+```
+
 ## References
 
 See [JSON Specification](https://www.json.org/json-en.html)
