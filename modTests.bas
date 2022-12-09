@@ -29,3 +29,6 @@ Else
 End If
 End Sub
 
+Sub Test4()
+Debug.Print JSONToString(ParseJSONString("""\ud800"""))
+End Sub

@@ -51,11 +51,11 @@ SkipChar Ctx, GetChar
 End Function
 
 Private Sub SkipSpaces(Ctx As ParserContext)
-Dim Curchar As String
+Dim CurChar As String
 Do
-    Curchar = PeekChar(Ctx)
-    If IsSpace(Curchar) = False Then Exit Do
-    SkipChar Ctx, Curchar
+    CurChar = PeekChar(Ctx)
+    If IsSpace(CurChar) = False Then Exit Do
+    SkipChar Ctx, CurChar
 Loop
 End Sub
 
@@ -72,7 +72,7 @@ End If
 End Function
 
 Private Function ParseString(Ctx As ParserContext, Optional ByVal IsObjectKey As Boolean = False) As String
-Dim Curchar As String
+Dim CurChar As String
 Dim Escape As Boolean
 Dim EscapeHex As Boolean
 Dim HexNumDigits As Long
@@ -81,27 +81,27 @@ Dim StartLineNo As Long, StartColumn As Long
 StartLineNo = Ctx.LineNo
 StartColumn = Ctx.Column - 1
 Do
-    Curchar = GetChar(Ctx)
-    If Len(Curchar) = 0 Then Err.Raise JSONErrCode, "JSON Parser", "Unterminated string starting at " & "line " & StartLineNo & " column " & StartColumn
+    CurChar = GetChar(Ctx)
+    If Len(CurChar) = 0 Then Err.Raise JSONErrCode, "JSON Parser", "Unterminated string starting at " & "line " & StartLineNo & " column " & StartColumn
     If Escape Then
         If EscapeHex Then
-            HexVal = HexVal * &H10 + HexCharToVal(Asc(Curchar))
+            HexVal = HexVal * &H10 + HexCharToVal(AscW(CurChar))
             HexNumDigits = HexNumDigits + 1
             If HexNumDigits = 4 Then
                 If IsObjectKey And HexVal < &H20 Then Err.Raise JSONErrCode, "JSON Parser", "Invalid control character at " & GetPositionString(Ctx)
-                ParseString = ParseString & Chr$(HexVal)
+                ParseString = ParseString & ChrW$(HexVal)
                 EscapeHex = False
                 Escape = False
             End If
         Else
             Escape = False
-            Select Case Curchar
+            Select Case CurChar
             Case """"
-                ParseString = ParseString & Curchar
+                ParseString = ParseString & CurChar
             Case "\"
-                ParseString = ParseString & Curchar
+                ParseString = ParseString & CurChar
             Case "/"
-                ParseString = ParseString & Curchar
+                ParseString = ParseString & CurChar
             Case "b"
                 ParseString = ParseString & vbBack
             Case "f"
@@ -123,25 +123,25 @@ Do
             End Select
         End If
     Else
-        If IsObjectKey And Asc(Curchar) < &H20 Then Err.Raise JSONErrCode, "JSON Parser", "Invalid control character at " & GetPositionString(Ctx)
-        If Curchar = "\" Then
+        If IsObjectKey And AscW(CurChar) < &H20 Then Err.Raise JSONErrCode, "JSON Parser", "Invalid control character at " & GetPositionString(Ctx)
+        If CurChar = "\" Then
             Escape = True
-        ElseIf Curchar = """" Then
+        ElseIf CurChar = """" Then
             Exit Do
         Else
-            ParseString = ParseString & Curchar
+            ParseString = ParseString & CurChar
         End If
     End If
 Loop
 End Function
 
 Private Function GetNumeric(Ctx As ParserContext) As String
-Dim Curchar As String
+Dim CurChar As String
 Do
-    Curchar = PeekChar(Ctx)
-    If IsNumeric(Curchar) Then
-        GetNumeric = GetNumeric & Curchar
-        SkipChar Ctx, Curchar
+    CurChar = PeekChar(Ctx)
+    If IsNumeric(CurChar) Then
+        GetNumeric = GetNumeric & CurChar
+        SkipChar Ctx, CurChar
     Else
         Exit Do
     End If
@@ -163,7 +163,7 @@ End Function
 Private Function ParseNumber(Ctx As ParserContext, ByVal FirstChar As String) As Variant
 Dim IsSigned As Boolean
 Dim NumberString As String
-Dim Curchar As String
+Dim CurChar As String
 Dim IsSignedExp As Boolean
 
 If FirstChar = "-" Then
@@ -173,19 +173,19 @@ End If
 NumberString = GetNumeric(Ctx)
 ParseNumber = NumericToInteger(NumberString)
 
-Curchar = PeekChar(Ctx)
-If Curchar = "." Then
-    SkipChar Ctx, Curchar
+CurChar = PeekChar(Ctx)
+If CurChar = "." Then
+    SkipChar Ctx, CurChar
     NumberString = GetNumeric(Ctx)
     ParseNumber = CDbl(ParseNumber) + CDbl(NumberString) / (10 ^ Len(NumberString))
 End If
 
-Curchar = PeekChar(Ctx)
-If LCase$(Curchar) = "e" Then
-    SkipChar Ctx, Curchar
-    Curchar = PeekChar(Ctx)
-    If Curchar = "-" Then
-        SkipChar Ctx, Curchar
+CurChar = PeekChar(Ctx)
+If LCase$(CurChar) = "e" Then
+    SkipChar Ctx, CurChar
+    CurChar = PeekChar(Ctx)
+    If CurChar = "-" Then
+        SkipChar Ctx, CurChar
         IsSignedExp = True
     End If
     NumberString = GetNumeric(Ctx)
@@ -206,14 +206,14 @@ If I >= 0 Then IsEmptyArray = False
 End Function
 
 Private Function ParseList(Ctx As ParserContext) As Variant
-Dim Curchar As String
+Dim CurChar As String
 Dim RetList() As Variant
 Dim ItemCount As Long
 
 SkipSpaces Ctx
-Curchar = PeekChar(Ctx)
-If Curchar = "]" Then
-    SkipChar Ctx, Curchar
+CurChar = PeekChar(Ctx)
+If CurChar = "]" Then
+    SkipChar Ctx, CurChar
     ParseList = RetList
     Exit Function
 End If
@@ -225,9 +225,9 @@ Do
     If ItemCount >= UBound(RetList) + 1 Then ReDim Preserve RetList(ItemCount * 3 / 2 + 1)
     
     SkipSpaces Ctx
-    Curchar = PeekChar(Ctx)
-    If Curchar = "]" Then
-        SkipChar Ctx, Curchar
+    CurChar = PeekChar(Ctx)
+    If CurChar = "]" Then
+        SkipChar Ctx, CurChar
         If ItemCount Then
             ReDim Preserve RetList(ItemCount - 1)
         Else
@@ -235,10 +235,10 @@ Do
         End If
         ParseList = RetList
         Exit Function
-    ElseIf Curchar = "," Then
-        SkipChar Ctx, Curchar
+    ElseIf CurChar = "," Then
+        SkipChar Ctx, CurChar
     Else
-        Err.Raise JSONErrCode, "JSON Parser", "Unexpected `" & Curchar & "` at " & GetPositionString(Ctx)
+        Err.Raise JSONErrCode, "JSON Parser", "Unexpected `" & CurChar & "` at " & GetPositionString(Ctx)
     End If
 Loop
 
@@ -247,45 +247,45 @@ End Function
 Private Function ParseObject(Ctx As ParserContext) As Variant
 Dim JObject As Object
 Dim SubItem As Variant
-Dim Curchar As String
+Dim CurChar As String
 
 Set JObject = CreateObject("Scripting.Dictionary")
 
 SkipSpaces Ctx
-Curchar = PeekChar(Ctx)
-If Curchar = "}" Then
-    SkipChar Ctx, Curchar
+CurChar = PeekChar(Ctx)
+If CurChar = "}" Then
+    SkipChar Ctx, CurChar
     Set ParseObject = JObject
     Exit Function
 End If
 
 Dim KeyName As String
 Do
-    Curchar = PeekChar(Ctx)
-    If Curchar = """" Then
-        SkipChar Ctx, Curchar
+    CurChar = PeekChar(Ctx)
+    If CurChar = """" Then
+        SkipChar Ctx, CurChar
         KeyName = ParseString(Ctx, True)
-    ElseIf Curchar = "'" Then
+    ElseIf CurChar = "'" Then
         Err.Raise JSONErrCode, "JSON Parser", "Expecting property name enclosed in double quotes at " & GetPositionString(Ctx)
     Else
         Err.Raise JSONErrCode, "JSON Parser", "Key name must be string at " & GetPositionString(Ctx)
     End If
     
     SkipSpaces Ctx
-    Curchar = PeekChar(Ctx)
-    If Curchar <> ":" Then Err.Raise JSONErrCode, "JSON Parser", "Expecting ':' delimiter at " & GetPositionString(Ctx)
-    SkipChar Ctx, Curchar
+    CurChar = PeekChar(Ctx)
+    If CurChar <> ":" Then Err.Raise JSONErrCode, "JSON Parser", "Expecting ':' delimiter at " & GetPositionString(Ctx)
+    SkipChar Ctx, CurChar
     SkipSpaces Ctx
     ParseSubString Ctx, SubItem
     JObject.Add KeyName, SubItem
     
     SkipSpaces Ctx
-    Curchar = PeekChar(Ctx)
-    If Curchar = "}" Then
-        SkipChar Ctx, Curchar
+    CurChar = PeekChar(Ctx)
+    If CurChar = "}" Then
+        SkipChar Ctx, CurChar
         Exit Do
-    ElseIf Curchar = "," Then
-        SkipChar Ctx, Curchar
+    ElseIf CurChar = "," Then
+        SkipChar Ctx, CurChar
         SkipSpaces Ctx
     Else
         Err.Raise JSONErrCode, "JSON Parser", "Expecting ',' delimiter at " & GetPositionString(Ctx)
@@ -296,7 +296,7 @@ Set ParseObject = JObject
 End Function
 
 Private Function ParseBoolean(Ctx As ParserContext, ByVal ExpectedValue As Boolean) As Variant
-Dim Curchar As String
+Dim CurChar As String
 Dim Word As String, ExpectedWord As String
 Dim I As Long
 
@@ -307,8 +307,8 @@ Else
 End If
 
 For I = 1 To Len(ExpectedWord)
-    Curchar = GetChar(Ctx)
-    If Len(Curchar) Then Word = Word & Curchar Else Err.Raise JSONErrCode, "JSON Parser", "Expecting value at " & GetPositionString(Ctx)
+    CurChar = GetChar(Ctx)
+    If Len(CurChar) Then Word = Word & CurChar Else Err.Raise JSONErrCode, "JSON Parser", "Expecting value at " & GetPositionString(Ctx)
 Next
 If Word = ExpectedWord Then
     ParseBoolean = ExpectedValue
@@ -322,25 +322,25 @@ Private Sub ParseSubString(Ctx As ParserContext, outParsed As Variant)
 SkipSpaces Ctx
 If IsEndOfString(Ctx) Then Err.Raise JSONErrCode, "JSON Parser", "Expecting value at " & GetPositionString(Ctx)
 
-Dim Curchar As String
-Curchar = PeekChar(Ctx)
-If Curchar = """" Then
-    SkipChar Ctx, Curchar
+Dim CurChar As String
+CurChar = PeekChar(Ctx)
+If CurChar = """" Then
+    SkipChar Ctx, CurChar
     outParsed = ParseString(Ctx)
-ElseIf IsNumeric(Curchar) = True Or Curchar = "-" Then
-    outParsed = ParseNumber(Ctx, Curchar)
-ElseIf Curchar = "[" Then
-    SkipChar Ctx, Curchar
+ElseIf IsNumeric(CurChar) = True Or CurChar = "-" Then
+    outParsed = ParseNumber(Ctx, CurChar)
+ElseIf CurChar = "[" Then
+    SkipChar Ctx, CurChar
     outParsed = ParseList(Ctx)
-ElseIf Curchar = "{" Then
-    SkipChar Ctx, Curchar
+ElseIf CurChar = "{" Then
+    SkipChar Ctx, CurChar
     Set outParsed = ParseObject(Ctx)
-ElseIf Curchar = "t" Then
+ElseIf CurChar = "t" Then
     outParsed = ParseBoolean(Ctx, True)
-ElseIf Curchar = "f" Then
+ElseIf CurChar = "f" Then
     outParsed = ParseBoolean(Ctx, False)
 Else
-    Err.Raise JSONErrCode, "JSON Parser", "Unexpected `" & Curchar & "` at " & GetPositionString(Ctx)
+    Err.Raise JSONErrCode, "JSON Parser", "Unexpected `" & CurChar & "` at " & GetPositionString(Ctx)
 End If
 End Sub
 
@@ -369,6 +369,41 @@ ParseSubString Ctx, ReturnParsed
 SkipSpaces Ctx
 If IsEndOfString(Ctx) = False Then Err.Raise JSONErrCode, "JSON Parser", "Extra data at " & GetPositionString(Ctx)
 End Sub
+
+Private Function Hex4(ByVal Value As Long) As String
+Hex4 = Right$("000" & Hex$(Value), 4)
+End Function
+
+Private Function EscapeString(ByVal SourceStr As String) As String
+Dim I As Long, EI As Long, CurChar As String, CharCode As Long, ToAppend As String
+
+EI = Len(SourceStr)
+For I = 1 To EI
+    CurChar = Mid$(SourceStr, I, 1)
+    CharCode = CLng(AscW(CurChar)) And &HFFFF&
+    Select Case CharCode
+    Case 0
+        ToAppend = "\0"
+    Case 1 To 7, &HB, &HE To &H1F, &HD800& To &HDFFF&
+        ToAppend = "\u" & Hex4(CharCode)
+    Case 8
+        ToAppend = "\b"
+    Case 9
+        ToAppend = "\t"
+    Case &HA
+        ToAppend = "\n"
+    Case &HC
+        ToAppend = "\f"
+    Case &HD
+        ToAppend = "\r"
+    Case &H5C
+        ToAppend = "\\"
+    Case Else
+        ToAppend = CurChar
+    End Select
+    EscapeString = EscapeString & ToAppend
+Next
+End Function
 
 Function JSONToString(JSONData As Variant, Optional ByVal Indent As Long = 0, Optional ByVal IndentChar = " ", Optional ByVal CurIndentLevel As Long = 0) As String
 If IsArray(JSONData) Then
@@ -414,7 +449,7 @@ ElseIf IsObject(JSONData) Then
 Else
     Select Case VarType(JSONData)
     Case vbString
-        JSONToString = """" & JSONData & """"
+        JSONToString = """" & EscapeString(JSONData) & """"
     Case Else
         If IsNumeric(JSONData) Then
             JSONToString = JSONData
