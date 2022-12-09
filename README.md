@@ -66,10 +66,10 @@ The typical practice of processing JSON data returned from REST API.
 Sub Example3()
 Dim JsonObj As Variant
 ParseJSONString2 "{""success"": true, ""data"": {""text"": ""Hello Json!"", ""title"": ""VB6 Json""}}", JsonObj
-'ParseJSONString2 "{""success"": false, ""wording"": ""API failed.""}", JsonObj
+'''ParseJSONString2 "{""success"": false, ""wording"": ""API failed.""}", JsonObj
 
 If JsonObj("success") = False Then
-    MsgBox JsonObj("wording"), vbExclamation, "API 返回失败。"
+    MsgBox JsonObj("wording"), vbExclamation, "API failed."
 Else
     MsgBox JsonObj("data")("text"), vbInformation, JsonObj("data")("title")
 End If
