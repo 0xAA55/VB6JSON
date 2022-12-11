@@ -327,6 +327,22 @@ End If
 
 End Function
 
+Private Function ParseNull(Ctx As ParserContext) As Variant
+Dim CurChar As String
+Dim Word As String, ExpectedWord As String
+Dim I As Long
+
+ExpectedWord = "null"
+
+For I = 1 To Len(ExpectedWord)
+    CurChar = GetChar(Ctx)
+    If Len(CurChar) Then Word = Word & CurChar Else Err.Raise JSONErrCode, "JSON Parser", "Expecting value at " & GetPositionString(Ctx)
+Next
+If Word <> ExpectedWord Then
+    Err.Raise JSONErrCode, "JSON Parser", "Unknown identifier `" & Word & "` at " & GetPositionString(Ctx)
+End If
+End Function
+
 Private Sub ParseSubString(Ctx As ParserContext, outParsed As Variant)
 SkipSpaces Ctx
 If IsEndOfString(Ctx) Then Err.Raise JSONErrCode, "JSON Parser", "Expecting value at " & GetPositionString(Ctx)
@@ -348,6 +364,8 @@ ElseIf CurChar = "t" Then
     outParsed = ParseBoolean(Ctx, True)
 ElseIf CurChar = "f" Then
     outParsed = ParseBoolean(Ctx, False)
+ElseIf CurChar = "n" Then
+    outParsed = ParseNull(Ctx)
 Else
     Err.Raise JSONErrCode, "JSON Parser", "Unexpected `" & CurChar & "` at " & GetPositionString(Ctx)
 End If
@@ -461,6 +479,8 @@ Else
     Select Case VarType(JSONData)
     Case vbString
         JSONToString = """" & EscapeString(JSONData) & """"
+    Case vbEmpty
+        JSONToString = "null"
     Case Else
         If IsNumeric(JSONData) Then
             JSONToString = JSONData
