@@ -156,8 +156,17 @@ NumericToInteger = CLng(Numeric)
 Exit Function
 
 Try1:
-Err.Clear
 NumericToInteger = CCur(Numeric)
+End Function
+
+Private Function NumericToVariant(Numeric As String) As Variant
+On Error GoTo Try1
+
+NumericToVariant = NumericToInteger(Numeric)
+Exit Function
+
+Try1:
+NumericToVariant = CDbl(Numeric)
 End Function
 
 Private Function ParseNumber(Ctx As ParserContext, ByVal FirstChar As String) As Variant
@@ -171,7 +180,7 @@ If FirstChar = "-" Then
     SkipChar Ctx, FirstChar
 End If
 NumberString = GetNumeric(Ctx)
-ParseNumber = NumericToInteger(NumberString)
+ParseNumber = NumericToVariant(NumberString)
 
 CurChar = PeekChar(Ctx)
 If CurChar = "." Then
@@ -396,6 +405,8 @@ For I = 1 To EI
         ToAppend = "\f"
     Case &HD
         ToAppend = "\r"
+    Case &H22
+        ToAppend = "\"""
     Case &H5C
         ToAppend = "\\"
     Case Else
