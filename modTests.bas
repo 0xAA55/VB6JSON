@@ -23,7 +23,7 @@ ParseJSONString2 "{""success"": true, ""data"": {""text"": ""Hello Json!"", ""ti
 'ParseJSONString2 "{""success"": false, ""wording"": ""API failed.""}", JsonObj
 
 If JsonObj("success") = False Then
-    MsgBox JsonObj("wording"), vbExclamation, "API ∑µªÿ ß∞‹°£"
+    MsgBox JsonObj("wording"), vbExclamation, "API failed."
 Else
     MsgBox JsonObj("data")("text"), vbInformation, JsonObj("data")("title")
 End If
